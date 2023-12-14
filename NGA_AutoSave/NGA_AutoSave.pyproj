@@ -1,0 +1,52 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>6224e86f-619d-4f97-ac40-a069afaa7a72</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>NGA_AutoSave.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>NGA_AutoSave</Name>
+    <RootNamespace>NGA_AutoSave</RootNamespace>
+    <InterpreterId>
+    </InterpreterId>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="CookieFormat.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MonitorUrls.py" />
+    <Compile Include="DownloadMonitoringPages.py" />
+    <Compile Include="NGA_AutoSave.py" />
+    <Compile Include="Paths.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="PageSaved\test.html" />
+    <Content Include="Settings\cookie.txt" />
+    <Content Include="Settings\setting.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="PageSaved\" />
+    <Folder Include="Settings\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>

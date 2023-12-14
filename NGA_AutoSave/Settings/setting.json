@@ -1,0 +1,14 @@
+{
+    "saveCycleTime": 180,
+    "monitoringUrls": [
+        {
+
+        }
+    ],
+    "saveHtmlFolderPath": "./PageSaved/",
+    "cookies": [
+        {
+            
+        }
+    ]
+}
