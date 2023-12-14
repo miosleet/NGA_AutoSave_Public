@@ -31,7 +31,7 @@ Python3.7就可以用了，更高版本的可以向下兼容
 ### 3.1.获取Cookie：
 以使用Chrome为例：  
 打开NGA的网页，按F12进入开发者工具，在Application->Cookies里，复制自己的Cookie  
-![image](https://github.com/miosleet/NGA_AutoSave/assets/43563705/0df3509e-e4b9-4edd-ac38-84eb91e02963)  
+![image](https://github.com/miosleet/NGA_AutoSave_Public/assets/43563705/982d3238-56c7-4c42-a1fe-a570410a16a1)
 粘贴到./Settings/cookie.txt文件内  
 
 ### 3.2.设置保存网页的路径（可选）
