@@ -8,7 +8,8 @@ response.text可以读到
 需要给定一个起始页，会从起始页开始保存
 '''
 
-import os  
+import os
+import time  
 #import requests  
 import CookieFormat  
 from Utils import Paths  
@@ -21,7 +22,61 @@ from Utils import M_requests
 cookies = None  
 nextPage=1
   
+
+
+def GetPageTitle(savedUrl):
+    """
+    先进行一次访问，获得网页标题
+    """
+    global cookies  # 声明使用全局变量 cookies  
+    if not cookies:  # 如果 cookies 为空，则调用 CookieFormat.GetCookies() 获取 cookies  
+        cookies = CookieFormat.GetCookies()  
+    response = M_requests.get(savedUrl, cookies=cookies) 
+    pageTitle=""
+    if response.status_code == 200:  
+        match = re.search(r"<meta name='keywords' content=''><title>.*?</title>", response.text)
+        if(match):
+            pageTitle=match.group()[40:-8]
+    return pageTitle
+
+def GetFolderName(folderName):
+    """
+    当不存在文件夹路径时，创建文件夹
+    """
+    if not os.path.exists(folderName):  
+        try:  
+            os.makedirs(folderName)  
+        except OSError as e:  
+            print(f"创建文件夹时出错：{e}")  
+
+def CalcUrlExpire(urlBase,finalPage,expireTime=86400):
+    """
+    储存此次记录的时间和末页计算帖子是否进坟，计算距离上一页新帖子过去的时间，过期则进坟。
+    参数：
+        expireTime：过期时间，默认为1天=86400s
+    """
+
+    lastNewTime = MonitorUrlsV2.GetUrlArg(urlBase,"lastNewTime")
+    lastFinalPage = MonitorUrlsV2.GetUrlArg(urlBase,"finalPage")
+    currTime=int(time.time())
+
+    if lastFinalPage==finalPage and currTime-lastNewTime>expireTime :
+        #如果上次的末页等于这次的末页，并且超时了，那么进坟
+        MonitorUrlsV2.SetUrlArg(urlBase,"valid",False)
+        print(f"{urlBase}已经超时，进坟")
+    elif not lastFinalPage==finalPage:
+        # 如果有新页，才更新新页时间和末页页码
+        print(f"已经达到最后一页: {finalPage}，存在新页，更新末页时间:{currTime}、页码:{finalPage}")
+        MonitorUrlsV2.SetUrlArg(urlBase,"lastNewTime",currTime)
+        MonitorUrlsV2.SetUrlArg(urlBase,"finalPage",finalPage)
+    else:
+        print(f"已经达到最后一页: {finalPage}，无新页，距离上次末页时间:{currTime-lastNewTime}")
+
+
 def DownloadWebpage(url, filename, urlBase):  
+    """
+    下载单个网页
+    """
     global cookies  # 声明使用全局变量 cookies  
     if not cookies:  # 如果 cookies 为空，则调用 CookieFormat.GetCookies() 获取 cookies  
         cookies = CookieFormat.GetCookies()  
@@ -47,6 +102,9 @@ def DownloadWebpage(url, filename, urlBase):
 
   
 def DownloadWebpageSequence(urlBase, fileNameBase, page=1):  
+    """
+    下载网页序列
+    """
     global nextPage
     if(page==1):
         url=urlBase
@@ -57,23 +115,25 @@ def DownloadWebpageSequence(urlBase, fileNameBase, page=1):
     print(f"准备下载网页{url}") 
     response = DownloadWebpage(url, fileName, urlBase)  
     if response is not None:  
+        # 有返回时，如果有下一页，则递归调用本函数，然后page+1以访问下一页
         match = re.search(r"title='下一页' class='pager_spacer'>下一页\(\d+\)</a>", response.text) 
         if match:  
             nextPage = int(match.group()[37:-5])  
             if nextPage > page:  
                 print(f"存在下一页: {nextPage}") 
-                DownloadWebpageSequence(urlBase, fileNameBase, nextPage)
+                return DownloadWebpageSequence(urlBase, fileNameBase, nextPage)
         else:
-            #当已经到了最后一页
-            finalPage=page
-            print(f"已经达到最后一页: {finalPage}")
-            #MonitorUrls.SetFinalPage(urlBase,finalPage)#记录最后一页的页码
-            MonitorUrlsV2.SetUrlArg(urlBase,"finalPage",finalPage)
+            #当已经到了最后一页，计算进坟
+            CalcUrlExpire(urlBase,page)
             nextPage=1
-            return finalPage
+            return page
             
   
-def DownloadMonitoringPages():  # 注意在def后添加了空格  
+def DownloadMonitoringPages(): 
+    """
+    下载网页，入口
+    """
+
     #monitoringUrls = MonitorUrls.GetMonitoringUrls()  
     monitoringUrls = MonitorUrlsV2.GetUrls()  
     if monitoringUrls:  
@@ -86,28 +146,14 @@ def DownloadMonitoringPages():  # 注意在def后添加了空格
                     tidPart = savedUrl.split("tid=")[-1]  
 
                     # 修改文件夹名
-                    ####### 先进行一次访问，获得标题，以获得文件夹名称
-                    global cookies  # 声明使用全局变量 cookies  
-                    if not cookies:  # 如果 cookies 为空，则调用 CookieFormat.GetCookies() 获取 cookies  
-                        cookies = CookieFormat.GetCookies()  
-                    response = M_requests.get(savedUrl, cookies=cookies) 
-                    pageTitle=""
-                    if response.status_code == 200:  
-                        match = re.search(r"<meta name='keywords' content=''><title>.*?</title>", response.text)
-                        if(match):
-                            pageTitle=match.group()[40:-8]
-                    folderName = Paths.saveHtmlFolderPath + "tid_" + tidPart + "_" + pageTitle  
-
-
+                    folderName = Paths.saveHtmlFolderPath + "tid_" + tidPart + "_" + GetPageTitle(savedUrl)  
                     # 检查文件夹是否存在，如果不存在则创建文件夹，然后进行网页下载  
-                    if not os.path.exists(folderName):  
-                        try:  
-                            os.makedirs(folderName)  
-                        except OSError as e:  
-                            print(f"创建文件夹时出错：{e}")  
-                            continue  
-                    fileNameBase = folderName + "/tid_" + tidPart  # 修正了fileNameBase的赋值，去掉了引入page的部分  
-                    #finalPage=MonitorUrls.GetFinalPage(savedUrl)
+                    GetFolderName(folderName)
+
+                    # 文件名
+                    fileNameBase = folderName + "/tid_" + tidPart
+
+                    # 获取末页，从末页开始继续访问
                     finalPage=MonitorUrlsV2.GetUrlArg(savedUrl,"finalPage")
                     print(f"准备下载网页序列{savedUrl}，从{finalPage}页开始")  
                     DownloadWebpageSequence(savedUrl, fileNameBase,finalPage)  # 直接调用DownloadWebpageSequence函数，不再检查保存是否成功  
@@ -120,5 +166,3 @@ def DownloadMonitoringPages():  # 注意在def后添加了空格
         print("获取到的 URL 列表为空。")
 # 程序开始运行时调用DownloadMonitoringPages 函数，并初始化page变量（这里仅为示例，您需要根据实际情况进行赋值）   
 DownloadMonitoringPages()
-
-#print("aaaaaa")
