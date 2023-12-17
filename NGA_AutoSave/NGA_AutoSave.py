@@ -2,7 +2,7 @@ import json
 import threading  
 import time  
 import DownloadMonitoringPages  
-import Paths  
+from Utils import Paths  
 import MonitorUrls  
   
 def auto_save():  

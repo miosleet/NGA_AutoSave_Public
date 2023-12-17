@@ -1,6 +1,6 @@
 import json  
 import os  
-import Paths
+from Utils import Paths  
  
 
 settingJsonPath=Paths.settingJsonPath

@@ -1,6 +1,7 @@
 # monitoring_urls.py  
-import json  
-import Paths  
+import json
+import time  
+from Utils import Paths  
   
 monitoringUrls = []  # 新建一个数组用于存储监控URL  
   
@@ -22,11 +23,13 @@ def AddMonitoringUrl(newUrl):
                 return  # 如果已存在，则直接返回，不进行后续操作  
 
     # 新建一个字典，包含两个key-value  
+    currentTime=time.time()
     newDict = {  
         "savedUrl": newUrl, 
-        "valid": True,  
+        "valid": True,
+        "lastNewTime":currentTime,
         "finalPage":1
-    }  
+        }  
   
     # 将这个字典新增进MonitoringUrls  
     monitoringUrls.append(newDict)  
@@ -65,11 +68,6 @@ def InvalidMonitoringUrls(TargetUrl):
     with open(Paths.settingJsonPath, 'w') as file:  # 将修改后的settings字典保存回setting.json文件中  
         json.dump(settings, file, indent=4)  # 使用缩进进行格式化保存  
     print("已将{TargetUrl}的valid设为False")
-
-
-# 用户输入语句，让用户可以输入一个新的url  
-#newUrl = input("新的监控URL: ")  # 修改了提示信息  
-#AddMonitoringUrl(newUrl)  # 调用AddMonitoringUrl方法添加新的监控URL  
 
 def SetFinalPage(targetUrl, finalPage):  
     print(f"设置{targetUrl}的末页: {finalPage}")

@@ -11,7 +11,7 @@ response.text可以读到
 import os  
 import requests  
 import CookieFormat  
-import Paths  
+from Utils import Paths  
 import MonitorUrls  
 import re  
 from Utils import M_requests

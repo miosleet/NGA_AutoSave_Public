@@ -29,7 +29,7 @@
     <Compile Include="MonitorUrls.py" />
     <Compile Include="DownloadMonitoringPages.py" />
     <Compile Include="NGA_AutoSave.py" />
-    <Compile Include="Paths.py" />
+    <Compile Include="Utils\Paths.py" />
     <Compile Include="Utils\M_requests.py" />
     <Compile Include="Utils\__init__.py" />
   </ItemGroup>
