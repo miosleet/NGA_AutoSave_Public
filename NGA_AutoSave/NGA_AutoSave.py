@@ -1,3 +1,4 @@
+from datetime import datetime  
 import json  
 import threading  
 import time  
@@ -9,12 +10,22 @@ import MonitorUrlsV2
 def auto_save():  
     with open(Paths.settingJsonPath, 'r') as f:  
         settings = json.load(f)  
-    saveCycleTime = settings['saveCycleTime']  
-  
+    saveCycleTimes = settings['saveCycleTime']  # 注意这里变成了times，因为现在是一个列表  
+
     while True:  
-        DownloadMonitoringPages.DownloadMonitoringPages()  # 调用网页下载函数
-        print("\n\n输入选项: 1:新增监控URL, 2:取消监控URL, 3:取消监控不可用的URL: \n")
-        time.sleep(saveCycleTime)  # 等待指定的循环时间 
+        # 打印当前时间  
+        print(f"开始下载，当前时间:", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))  
+          
+        # 调用网页下载函数  
+        DownloadMonitoringPages.DownloadMonitoringPages()  
+          
+        print("\n\n输入选项: 1:新增监控URL, 2:取消监控URL, 3:取消监控不可用的URL: \n")  
+
+        # 更新小时和对应的等待时间  
+        saveCycleTime = saveCycleTimes[datetime.now().hour]
+        print(f"下次循环于{saveCycleTimes[datetime.now().hour]}秒后")
+        # 等待指定的循环时间  
+        time.sleep(saveCycleTime)  
 
   
 def receive_input():  
