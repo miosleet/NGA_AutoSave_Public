@@ -159,3 +159,6 @@ env*/
 
 # custom
 PageSaved/
+Settings/
+NGA_AutoSave/Settings/setting.json
+NGA_AutoSave/Settings/cookie.txt

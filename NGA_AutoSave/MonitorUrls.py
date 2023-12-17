@@ -11,12 +11,15 @@ def AddMonitoringUrl(newUrl):
     with open(Paths.settingJsonPath, 'r') as file:  
         settings = json.load(file)  # 读取JSON文件中的数据为settings字典  
     monitoringUrls = settings['monitoringUrls']  
-  
+    if len(monitoringUrls[0])==0:
+        monitoringUrls=[]
+
     # 检查newUrl是否已经存在于MonitoringUrls中  
-    for savedUrl in monitoringUrls:  
-        if savedUrl['savedUrl'] == newUrl:  
-            print("该URL已存在，无需重复添加。")  
-            return  # 如果已存在，则直接返回，不进行后续操作  
+    if not len(monitoringUrls)<=1:
+        for savedUrl in monitoringUrls:  
+            if savedUrl['savedUrl'] == newUrl:  
+                print("该URL已存在，无需重复添加。")  
+                return  # 如果已存在，则直接返回，不进行后续操作  
 
     # 新建一个字典，包含两个key-value  
     newDict = {  
