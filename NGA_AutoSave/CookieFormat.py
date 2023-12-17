@@ -5,8 +5,10 @@ import Paths
 
 settingJsonPath=Paths.settingJsonPath
 cookieTxtPath=Paths.cookieTxtPath
+savedCookies={}
 
 def SplitCookieAndSave(cookieStr):  
+    global savedCookies
     cookie_dict = {}  
     for line in cookieStr.splitlines():  
         if line.strip():  # 检查这一行是否为空
@@ -16,6 +18,7 @@ def SplitCookieAndSave(cookieStr):
                 cookie_dict[key] = value  
       
     settings = {}  
+    savedCookies=cookie_dict
 
     with open(settingJsonPath, 'r', encoding='utf-8') as f: 
         settings = json.load(f)  
@@ -42,20 +45,37 @@ def UserInputCookie():
   
 
 def GetCookies():
+    
+    #如果存在savedCookies，则直接返回
+    global savedCookies
+    if len(savedCookies)>100:
+        return 
+
+    #否则， 读取文件
+
+    needReInput=False
     # 检查文件是否存在  
     if os.path.exists(settingJsonPath) and os.path.getsize(settingJsonPath) > 0:  
-        with open(settingJsonPath, 'r', encoding='utf-8') as f:  
+        with open(settingJsonPath, 'r', encoding='utf-8') as f: 
             settings = json.load(f)  
+            if len(settings['cookies'])<100:
+                needReInput=True
+            else:
+                savedCookies=settings['cookies'][0]
+                print(f"GetCookies Success")
+
             #f.seek(0)
             #print(f'f.read()\n{f.read()}')
-
     else:  
+        needReInput=True
+
+    if needReInput:
         print(f"File {settingJsonPath} does not exist or is empty.")  
-        UserInputCookie()
- 
-    savedCookies=settings['cookies'][0]
-    print(f"GetCookies Success")
+        savedCookies = UserInputCookie()
+
     return savedCookies
+ 
+
 
 # 在开始运行时自动调用GetCookie方法，这里使用的是懒加载的方式，也可以在程序初始化时调用GetCookie方法。  
 #GetCookie()

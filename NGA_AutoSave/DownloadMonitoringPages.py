@@ -14,6 +14,7 @@ import CookieFormat
 import Paths  
 import MonitorUrls  
 import re  
+from Utils import M_requests
   
 # 将 cookies 定义为全局变量  
 cookies = None  
@@ -23,7 +24,7 @@ def DownloadWebpage(url, filename, urlBase):
     global cookies  # 声明使用全局变量 cookies  
     if not cookies:  # 如果 cookies 为空，则调用 CookieFormat.GetCookies() 获取 cookies  
         cookies = CookieFormat.GetCookies()  
-    response = requests.get(url, cookies=cookies)  
+    response = M_requests.get(url, cookies=cookies)  
     if response.status_code == 200:  
         match = re.search(r"\(ERROR:<!--msgcodestart-->\d+<!--msgcodeend-->\)", response.text)
         if(match):
@@ -84,7 +85,7 @@ def DownloadMonitoringPages():  # 注意在def后添加了空格
                     global cookies  # 声明使用全局变量 cookies  
                     if not cookies:  # 如果 cookies 为空，则调用 CookieFormat.GetCookies() 获取 cookies  
                         cookies = CookieFormat.GetCookies()  
-                    response = requests.get(savedUrl, cookies=cookies) 
+                    response = M_requests.get(savedUrl, cookies=cookies) 
                     pageTitle=""
                     if response.status_code == 200:  
                         match = re.search(r"<meta name='keywords' content=''><title>.*?</title>", response.text)

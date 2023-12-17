@@ -30,13 +30,15 @@
     <Compile Include="DownloadMonitoringPages.py" />
     <Compile Include="NGA_AutoSave.py" />
     <Compile Include="Paths.py" />
+    <Compile Include="Utils\M_requests.py" />
+    <Compile Include="Utils\__init__.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="PageSaved\test.html" />
-    <Content Include="Settings\cookie.txt" />
-    <Content Include="Settings\setting.json" />
+    <Content Include="Settings\settingTemplate.json" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Utils\" />
     <Folder Include="PageSaved\" />
     <Folder Include="Settings\" />
   </ItemGroup>
