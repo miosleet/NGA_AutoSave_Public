@@ -9,10 +9,11 @@ response.text可以读到
 '''
 
 import os  
-import requests  
+#import requests  
 import CookieFormat  
 from Utils import Paths  
-import MonitorUrls  
+#import MonitorUrls  
+import MonitorUrlsV2 
 import re  
 from Utils import M_requests
   
@@ -29,8 +30,9 @@ def DownloadWebpage(url, filename, urlBase):
         match = re.search(r"\(ERROR:<!--msgcodestart-->\d+<!--msgcodeend-->\)", response.text)
         if(match):
             print(f"帖子{url}访问失败: {match.group()}")
-            MonitorUrls.InvalidMonitoringUrls(urlBase)
-            return None
+            #MonitorUrls.InvalidMonitoringUrls(urlBase)
+            MonitorUrlsV2.SetUrlArg(urlBase,"valid",False)
+            return response
         else:
             with open(filename, 'w', encoding='gbk') as file:  
                 file.write(response.text)  
@@ -38,7 +40,8 @@ def DownloadWebpage(url, filename, urlBase):
                 return response  # 返回成功请求时返回的response对象  
     else:  
         print(f"请求失败，状态码：{response.status_code}")  
-        MonitorUrls.InvalidMonitoringUrls(urlBase)
+        #MonitorUrls.InvalidMonitoringUrls(urlBase)
+        MonitorUrlsV2.SetUrlArg(urlBase,"valid",False)
         return None  # 返回请求失败时返回的None  
   
 
@@ -64,13 +67,15 @@ def DownloadWebpageSequence(urlBase, fileNameBase, page=1):
             #当已经到了最后一页
             finalPage=page
             print(f"已经达到最后一页: {finalPage}")
-            MonitorUrls.SetFinalPage(urlBase,finalPage)#记录最后一页的页码
+            #MonitorUrls.SetFinalPage(urlBase,finalPage)#记录最后一页的页码
+            MonitorUrlsV2.SetUrlArg(urlBase,"finalPage",finalPage)
             nextPage=1
             return finalPage
             
   
 def DownloadMonitoringPages():  # 注意在def后添加了空格  
-    monitoringUrls = MonitorUrls.GetMonitoringUrls()  
+    #monitoringUrls = MonitorUrls.GetMonitoringUrls()  
+    monitoringUrls = MonitorUrlsV2.GetUrls()  
     if monitoringUrls:  
         for urlDict in monitoringUrls:  
             valid = urlDict.get("valid")  
@@ -81,7 +86,7 @@ def DownloadMonitoringPages():  # 注意在def后添加了空格
                     tidPart = savedUrl.split("tid=")[-1]  
 
                     # 修改文件夹名
-
+                    ####### 先进行一次访问，获得标题，以获得文件夹名称
                     global cookies  # 声明使用全局变量 cookies  
                     if not cookies:  # 如果 cookies 为空，则调用 CookieFormat.GetCookies() 获取 cookies  
                         cookies = CookieFormat.GetCookies()  
@@ -91,8 +96,9 @@ def DownloadMonitoringPages():  # 注意在def后添加了空格
                         match = re.search(r"<meta name='keywords' content=''><title>.*?</title>", response.text)
                         if(match):
                             pageTitle=match.group()[40:-8]
-
                     folderName = Paths.saveHtmlFolderPath + "tid_" + tidPart + "_" + pageTitle  
+
+
                     # 检查文件夹是否存在，如果不存在则创建文件夹，然后进行网页下载  
                     if not os.path.exists(folderName):  
                         try:  
@@ -101,7 +107,8 @@ def DownloadMonitoringPages():  # 注意在def后添加了空格
                             print(f"创建文件夹时出错：{e}")  
                             continue  
                     fileNameBase = folderName + "/tid_" + tidPart  # 修正了fileNameBase的赋值，去掉了引入page的部分  
-                    finalPage=MonitorUrls.GetFinalPage(savedUrl)
+                    #finalPage=MonitorUrls.GetFinalPage(savedUrl)
+                    finalPage=MonitorUrlsV2.GetUrlArg(savedUrl,"finalPage")
                     print(f"准备下载网页序列{savedUrl}，从{finalPage}页开始")  
                     DownloadWebpageSequence(savedUrl, fileNameBase,finalPage)  # 直接调用DownloadWebpageSequence函数，不再检查保存是否成功  
                 else:  

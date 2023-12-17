@@ -9,24 +9,24 @@ savedCookies={}
 
 def SplitCookieAndSave(cookieStr):  
     global savedCookies
-    cookie_dict = {}  
+    cookieDict = {}  
     for line in cookieStr.splitlines():  
         if line.strip():  # 检查这一行是否为空
             lineSplit=line.split('\t')
             key, value = lineSplit[0].strip(), lineSplit[1].strip()  # 使用制表符（tab）作为分隔符，并取出第一、二个元素作为key和value，同时去除空格  
             if('nga' in lineSplit[2] or '178' in lineSplit[2]):
-                cookie_dict[key] = value  
+                cookieDict[key] = value  
       
     settings = {}  
-    savedCookies=cookie_dict
+    savedCookies=cookieDict
 
     with open(settingJsonPath, 'r', encoding='utf-8') as f: 
         settings = json.load(f)  
-        settings['cookies'] = (cookie_dict,)  
+        settings['cookies'] = cookieDict  
     with open(settingJsonPath, 'w', encoding='utf-8') as f:  
         json.dump(settings, f)  
-        print('Cookie已成功保存！') 
-        return cookie_dict  # 成功保存后返回cookie_dict  
+        print(f'Cookie已成功保存！\n{cookieDict}') 
+        return cookieDict  # 成功保存后返回cookie_dict  
   
 def UserInputCookie():  
 
@@ -36,9 +36,9 @@ def UserInputCookie():
         #print(f"cookieStr\n{cookieStr}")
     
     if len(cookieStr) > 100: 
-        cookie_dict= SplitCookieAndSave(cookieStr)  # 如果cookieStr长度大于10，则调用SplitCookieAndSave方法并返回其结果  
-        print(f'cookie_dict\n{cookie_dict}')
-        return cookie_dict
+        cookieDict= SplitCookieAndSave(cookieStr)  # 如果cookieStr长度大于10，则调用SplitCookieAndSave方法并返回其结果  
+        #print(f'cookie_dict\n{cookie_dict}')
+        return cookieDict
     else:  
         print("Cookie字符串太短，请重新输入！")  # 如果cookieStr长度小于等于10，则输出提示信息并返回None表示调用失败  
         return None  # 返回None表示调用失败
@@ -49,7 +49,7 @@ def GetCookies():
     #如果存在savedCookies，则直接返回
     global savedCookies
     if len(savedCookies)>100:
-        return 
+        return savedCookies
 
     #否则， 读取文件
 
@@ -58,10 +58,10 @@ def GetCookies():
     if os.path.exists(settingJsonPath) and os.path.getsize(settingJsonPath) > 0:  
         with open(settingJsonPath, 'r', encoding='utf-8') as f: 
             settings = json.load(f)  
-            if len(settings['cookies'])<100:
+            if len(settings['cookies'])<3:
                 needReInput=True
             else:
-                savedCookies=settings['cookies'][0]
+                savedCookies=settings['cookies']
                 print(f"GetCookies Success")
 
             #f.seek(0)

@@ -28,6 +28,7 @@
     </Compile>
     <Compile Include="MonitorUrls.py" />
     <Compile Include="DownloadMonitoringPages.py" />
+    <Compile Include="MonitorUrlsV2.py" />
     <Compile Include="NGA_AutoSave.py" />
     <Compile Include="Utils\Paths.py" />
     <Compile Include="Utils\M_requests.py" />
